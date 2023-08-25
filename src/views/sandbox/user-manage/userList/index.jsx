@@ -1,8 +1,19 @@
-import { Button, Form, Input, Popconfirm, Table, Switch, Space, Modal, Select, message } from 'antd';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
-import './index.css'
+import {
+  Button,
+  Form,
+  Input,
+  Popconfirm,
+  Table,
+  Switch,
+  Space,
+  Modal,
+  Select,
+  message,
+} from "antd";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { DeleteOutlined, FormOutlined } from "@ant-design/icons";
+import "./index.css";
 const { Option } = Select;
 const Userlist = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -15,67 +26,86 @@ const Userlist = () => {
   const [editId, setEditId] = useState(0);
   const [form] = Form.useForm();
   const [upForm] = Form.useForm();
-  const { username, region, roleId } = JSON.parse(localStorage.getItem('token'))
+  const { username, region, roleId } = JSON.parse(
+    localStorage.getItem("token")
+  );
   // 设置表格数据
   useEffect(() => {
-    axios.get('/users?_expand=role').then(res => {
-      const list = res.data
+    axios.get("/users?_expand=role").then((res) => {
+      const list = res.data;
       console.log(res.data);
-      // 超级管理员可以看到所有用户，区域管理员只能看到自己和同区域的区域编辑 
-      setDataSource(roleId * 1 === 1 ? list : [
-        ...list.filter(item => item.username === username),
-        ...list.filter(item => item.region === region && item.roleId * 1 === 3)
-      ])
-    })
-  }, [username, region, roleId])
+      // 超级管理员可以看到所有用户，区域管理员只能看到自己和同区域的区域编辑
+      setDataSource(
+        roleId * 1 === 1
+          ? list
+          : [
+              ...list.filter((item) => item.username === username),
+              ...list.filter(
+                (item) => item.region === region && item.roleId * 1 === 3
+              ),
+            ]
+      );
+    });
+  }, [username, region, roleId]);
   // 获取区域数据
   useEffect(() => {
-    axios.get('/regions').then(res => {
-      setRegions(res.data)
-    })
-  }, [])
+    axios.get("/regions").then((res) => {
+      setRegions(res.data);
+    });
+  }, []);
   // 获取角色数据
   useEffect(() => {
-    axios.get('/roles').then(res => {
-      setRoles(res.data)
-    })
-  }, [])
+    axios.get("/roles").then((res) => {
+      setRoles(res.data);
+    });
+  }, []);
   const handleDelete = (value) => {
-    const newData = dataSource.filter(item => item.id !== value.id);
+    const newData = dataSource.filter((item) => item.id !== value.id);
     setDataSource(newData);
-    axios.delete(`/users/${value.id}`)
+    axios.delete(`/users/${value.id}`);
   };
   const onCreate = (values) => {
     setOpen(false);
-    axios.post('/users', {
-      ...values,
-      "roleState": true,
-      "default": false
-    }).then(res => {
-      setDataSource([...dataSource, {
-        ...res.data,
-        role: roles.find(item => item.id === values.roleId * 1)
-      }])
-    })
+    axios
+      .post("/users", {
+        ...values,
+        roleState: true,
+        default: false,
+      })
+      .then((res) => {
+        setDataSource([
+          ...dataSource,
+          {
+            ...res.data,
+            role: roles.find((item) => item.id === values.roleId * 1),
+          },
+        ]);
+      });
   };
   const onUpCreate = (values) => {
     console.log(values);
     setEditOpen(false);
-    axios.patch(`/users/${editId}`, {
-      ...values,
-    }).then(res => {
-      setDataSource(dataSource.map(item => {
-        if (item.id === editId) {
-          return {
-            ...item,
-            ...values,
-            role: roles.filter(data => data.id * 1 === values.roleId * 1)[0]
-          }
-        } else {
-          return item
-        }
-      }))
-    })
+    axios
+      .patch(`/users/${editId}`, {
+        ...values,
+      })
+      .then((res) => {
+        setDataSource(
+          dataSource.map((item) => {
+            if (item.id === editId) {
+              return {
+                ...item,
+                ...values,
+                role: roles.filter(
+                  (data) => data.id * 1 === values.roleId * 1
+                )[0],
+              };
+            } else {
+              return item;
+            }
+          })
+        );
+      });
   };
   const onCancel = () => {
     setOpen(false);
@@ -84,77 +114,103 @@ const Userlist = () => {
     setEditOpen(false);
   };
   const confirm = (record) => {
-    message.success('删除成功！');
-    handleDelete(record)
+    message.success("删除成功！");
+    handleDelete(record);
   };
   const changeUserState = (State, item) => {
     axios.patch(`/users/${item.id}`, {
-      roleState: !State
-    })
-    item.roleState = !State
-    setDataSource([...dataSource])
-  }
+      roleState: !State,
+    });
+    item.roleState = !State;
+    setDataSource([...dataSource]);
+  };
   const RisDIsable = (item) => {
     if (roleId * 1 === 1) {
-      return false
+      return false;
     } else {
-      return item.value !== region
+      return item.value !== region;
     }
-  }
+  };
   const RoisDIsable = (item) => {
-
     if (roleId * 1 === 1) {
-      return false
+      return false;
     } else {
-      return item.id !== 3
+      return item.id !== 3;
     }
-  }
+  };
   const columns = [
     {
-      title: '区域',
-      dataIndex: 'region',
-      align:'center',
-      render: (region) => <b>{region === '' ? '全球' : region}</b>,
-      
+      title: "用户职业",
+      dataIndex: "region",
+      align: "center",
+      render: (region) => <b>{region === "" ? "全球" : region}</b>,
     },
     {
-      title: '角色名称',
-      dataIndex: 'role',
-      align:'center',
-      render: (role) => role?.roleName
+      title: "角色名称",
+      dataIndex: "role",
+      align: "center",
+      render: (role) => role?.roleName,
     },
     {
-      title: '用户名',
-      dataIndex: 'username',
-      align:'center',
+      title: "用户名",
+      dataIndex: "username",
+      align: "center",
     },
     {
-      title: '用户状态',
-      dataIndex: 'roleState',
-      align:'center',
-      render: (roleState, record) => <Switch checkedChildren="开启" unCheckedChildren="关闭" checked={roleState} disabled={record.default} onChange={() => changeUserState(roleState, record)} />
+      title: "是否VIP",
+      dataIndex: "roleState",
+      align: "center",
+      render: (roleState, record) => (
+        <Switch
+          checkedChildren="是"
+          unCheckedChildren="否"
+          checked={roleState}
+          disabled={record.default}
+          onChange={() => changeUserState(roleState, record)}
+        />
+      ),
     },
 
     {
-      title: '操作',
-      dataIndex: 'operation',
-      align:'center',
-      render: (_, record) =>
+      title: "操作",
+      dataIndex: "operation",
+      align: "center",
+      render: (_, record) => (
         <Space>
-          <Button shape="circle" type="primary" icon={<FormOutlined />} disabled={record.default} onClick={() => {
-            setEditOpen(true)
-            upForm.setFieldsValue({ ...record, roleId: record.roleId * 1 === 1 ? '超级管理员' : record.roleId * 1 === 2 ? '区域管理员' : '区域编辑' })
-            setEditId(record.id)
-          }}></Button>
+          <Button
+            shape="circle"
+            type="primary"
+            icon={<FormOutlined />}
+            disabled={record.default}
+            onClick={() => {
+              setEditOpen(true);
+              upForm.setFieldsValue({
+                ...record,
+                roleId:
+                  record.roleId * 1 === 1
+                    ? "超级管理员"
+                    : record.roleId * 1 === 2
+                    ? "区域管理员"
+                    : "区域编辑",
+              });
+              setEditId(record.id);
+            }}
+          ></Button>
           <Popconfirm
             title="Are you sure to delete this role?"
             onConfirm={() => confirm(record)}
             okText="Yes"
             cancelText="No"
           >
-            <Button shape="circle" type="danger" icon={<DeleteOutlined />} disabled={record.default} ></Button>
+            <Button
+              shape="circle"
+              type="danger"
+              icon={<DeleteOutlined />}
+              disabled={record.default}
+            ></Button>
           </Popconfirm>
         </Space>
+      ),
     },
   ];
 
@@ -175,7 +231,7 @@ const Userlist = () => {
               onCreate(values);
             })
             .catch((info) => {
-              console.log('Validate Failed:', info);
+              console.log("Validate Failed:", info);
             });
         }}
       >
@@ -185,7 +241,7 @@ const Userlist = () => {
           layout="vertical"
           name="form_in_modal"
           initialValues={{
-            modifier: 'public',
+            modifier: "public",
           }}
         >
           <Form.Item
@@ -194,10 +250,9 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入用户名!',
+                message: "请输入用户名!",
               },
             ]}
-
           >
             <Input />
           </Form.Item>
@@ -207,7 +262,7 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入密码!',
+                message: "请输入密码!",
               },
             ]}
           >
@@ -216,26 +271,34 @@ const Userlist = () => {
           <Form.Item
             name="region"
             label="区域"
-            rules={roleSelect ? [] : [
-              {
-                required: true,
-                message: '请输入区域!',
-              },
-            ]}
+            rules={
+              roleSelect
+                ? []
+                : [
+                    {
+                      required: true,
+                      message: "请输入区域!",
+                    },
+                  ]
+            }
           >
             <Select
               style={{
                 width: 472,
               }}
               disabled={roleSelect}
-
             >
-              {
-                regions.map(item => {
-                  return <Option value={item.value} key={item.id} disabled={RisDIsable(item)}>{item.title}</Option>
-                })
-              }
-
+              {regions.map((item) => {
+                return (
+                  <Option
+                    value={item.value}
+                    key={item.id}
+                    disabled={RisDIsable(item)}
+                  >
+                    {item.title}
+                  </Option>
+                );
+              })}
             </Select>
           </Form.Item>
           <Form.Item
@@ -244,7 +307,7 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入角色!',
+                message: "请输入角色!",
               },
             ]}
           >
@@ -254,24 +317,26 @@ const Userlist = () => {
               }}
               onSelect={(value) => {
                 if (value * 1 === 1) {
-                  setRoleSelect(true)
-                  form.setFieldsValue({ region: '' })
+                  setRoleSelect(true);
+                  form.setFieldsValue({ region: "" });
                 } else {
-                  setRoleSelect(false)
+                  setRoleSelect(false);
                 }
-
               }}
-
             >
-              {
-                roles.map(item => {
-                  return <Option value={item.roleId} key={item.id} disabled={RoisDIsable(item)}>{item.roleName}</Option>
-                })
-              }
-
+              {roles.map((item) => {
+                return (
+                  <Option
+                    value={item.roleId}
+                    key={item.id}
+                    disabled={RoisDIsable(item)}
+                  >
+                    {item.roleName}
+                  </Option>
+                );
+              })}
             </Select>
           </Form.Item>
-
         </Form>
       </Modal>
       {/* upUsersModal */}
@@ -289,7 +354,7 @@ const Userlist = () => {
               onUpCreate(values);
             })
             .catch((info) => {
-              console.log('Validate Failed:', info);
+              console.log("Validate Failed:", info);
             });
         }}
       >
@@ -298,7 +363,7 @@ const Userlist = () => {
           layout="vertical"
           name="form_in_modal"
           initialValues={{
-            modifier: 'public',
+            modifier: "public",
           }}
         >
           <Form.Item
@@ -307,10 +372,9 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入用户名!',
+                message: "请输入用户名!",
               },
             ]}
-
           >
             <Input />
           </Form.Item>
@@ -320,7 +384,7 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入密码!',
+                message: "请输入密码!",
               },
             ]}
           >
@@ -329,30 +393,37 @@ const Userlist = () => {
           <Form.Item
             name="region"
             label="区域"
-            rules={roleSelect ? [] : [
-              {
-                required: true,
-                message: '请输入区域!',
-              },
-            ]}
+            rules={
+              roleSelect
+                ? []
+                : [
+                    {
+                      required: true,
+                      message: "请输入区域!",
+                    },
+                  ]
+            }
           >
             <Select
               style={{
                 width: 472,
               }}
               disabled={editRoleSelect}
-
               onChange={(value, option) => {
                 console.log(value, option);
               }}
-
             >
-              {
-                regions.map(item => {
-                  return <Option value={item.value} key={item.id} disabled={RisDIsable(item)}>{item.title}</Option>
-                })
-              }
-
+              {regions.map((item) => {
+                return (
+                  <Option
+                    value={item.value}
+                    key={item.id}
+                    disabled={RisDIsable(item)}
+                  >
+                    {item.title}
+                  </Option>
+                );
+              })}
             </Select>
           </Form.Item>
           <Form.Item
@@ -361,7 +432,7 @@ const Userlist = () => {
             rules={[
               {
                 required: true,
-                message: '请输入角色!',
+                message: "请输入角色!",
               },
             ]}
           >
@@ -371,24 +442,26 @@ const Userlist = () => {
               }}
               onSelect={(value) => {
                 if (value * 1 === 1) {
-                  setEditRoleSelect(true)
-                  upForm.setFieldsValue({ region: '' })
+                  setEditRoleSelect(true);
+                  upForm.setFieldsValue({ region: "" });
                 } else {
-                  setEditRoleSelect(false)
+                  setEditRoleSelect(false);
                 }
-
               }}
-
             >
-              {
-                roles.map(item => {
-                  return <Option value={item.roleId} key={item.id} disabled={RisDIsable(item)}>{item.roleName}</Option>
-                })
-              }
-
+              {roles.map((item) => {
+                return (
+                  <Option
+                    value={item.roleId}
+                    key={item.id}
+                    disabled={RisDIsable(item)}
+                  >
+                    {item.roleName}
+                  </Option>
+                );
+              })}
             </Select>
           </Form.Item>
-
         </Form>
       </Modal>
 
@@ -405,11 +478,11 @@ const Userlist = () => {
       </Button>
       <Table
         columns
-        rowClassName={() => 'editable-row'}
+        rowClassName={() => "editable-row"}
         bordered
         dataSource={dataSource}
         columns={columns}
-        rowKey={item => item.id}
+        rowKey={(item) => item.id}
       />
     </div>
   );

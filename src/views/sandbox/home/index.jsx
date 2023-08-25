@@ -70,7 +70,7 @@ export default function Home() {
     });
   }, []);
   const cateList = [
-    "家庭教育",
+    "技术/产品",
     "美术绘画",
     "音乐体育",
     "考研培训",
@@ -102,7 +102,7 @@ export default function Home() {
     // 绘制图表
     myChart.setOption({
       title: {
-        text: "教育热度排行",
+        text: "简历分类热度",
       },
       color: {
         type: "linear",
@@ -263,7 +263,7 @@ export default function Home() {
     <div className="site-card-wrapper">
       <Row gutter={16}>
         <Col span={8}>
-          <Card title="最多浏览😍" bordered={true}>
+          <Card title="模板浏览排行😍 " bordered={true}>
             <List
               size="small"
               dataSource={viewList}
@@ -277,7 +277,7 @@ export default function Home() {
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="最多点赞⭐" bordered={true}>
+          <Card title="模板下载排行⭐ " bordered={true}>
             <div ref={lRef} className={e.lRef}></div>
           </Card>
         </Col>

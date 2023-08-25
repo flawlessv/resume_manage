@@ -31,14 +31,24 @@ const Login = () => {
   return (
     <>
       <div className="my-login-box">
-        <h2>凡思美育后台登录</h2>
+        <h2>简历魔法屋后台登录</h2>
         <div>
           <div className="user-box">
-            <input type="text" name="username" required="" placeholder="测试用户名:admin"/>
+            <input
+              type="text"
+              name="username"
+              required=""
+              placeholder="测试用户名:admin"
+            />
             <label>用户名</label>
           </div>
           <div className="user-box">
-            <input type="password" name="password" required="" placeholder="密码:111"/>
+            <input
+              type="password"
+              name="password"
+              required=""
+              placeholder="密码:111"
+            />
             <label>密码</label>
           </div>
           <button onClick={handleLogin}>
